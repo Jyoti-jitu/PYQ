@@ -56,9 +56,11 @@ const register = async (req, res) => {
 
 // Login an existing user
 const login = async (req, res) => {
+    console.log('Login attempt:', req.body.email);
     const { email, password } = req.body;
 
     if (!email || !password) {
+        console.log('Missing email or password in request body');
         return res.status(400).json({ error: 'Email and password are required' });
     }
 
@@ -70,15 +72,22 @@ const login = async (req, res) => {
             .eq('email', email)
             .single();
 
-        if (error || !user) {
-            return res.status(400).json({ error: 'Invalid email or password' });
+        if (error) {
+            console.error('Supabase error during login:', error);
+            return res.status(400).json({ error: `Database error: ${error.message}` });
+        }
+
+        if (!user) {
+            console.log('User not found for email:', email);
+            return res.status(400).json({ error: 'User not found for this email address' });
         }
 
         // Compare password hash
         const match = await bcrypt.compare(password, user.password_hash);
 
         if (!match) {
-            return res.status(400).json({ error: 'Invalid email or password' });
+            console.log('Invalid password for email:', email);
+            return res.status(400).json({ error: 'Invalid password' });
         }
 
         // Return user data (excluding password)
@@ -87,9 +96,6 @@ const login = async (req, res) => {
         res.status(200).json({
             message: 'Login successful',
             user: safeUserData,
-            // Assuming we don't strictly need a JWT session token for the current simplified flow,
-            // or we could generate one here if the frontend requires it. 
-            // The frontend just currently checks 'message'.
         });
     } catch (error) {
         console.error('Login error:', error);
