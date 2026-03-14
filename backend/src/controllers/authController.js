@@ -136,7 +136,8 @@ const forgotPassword = async (req, res) => {
             return res.status(500).json({ error: 'Failed to generate reset request' });
         }
 
-        const resetUrl = `http://localhost:5173/reset-password?token=${resetToken}`;
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
 
         // Log to console (in real app, this would be emailed)
         console.log(`\n\n=== PASSWORD RESET LINK GENERATED ===\nCopy and paste this link into your browser to reset your password:\n${resetUrl}\n=====================================\n\n`);
