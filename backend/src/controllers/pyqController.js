@@ -56,7 +56,6 @@ const uploadPyq = async (req, res) => {
 
         if (storageError) {
             console.error('Storage Upload Error:', storageError);
-            require('fs').appendFileSync('last_error.log', `[Storage] ${JSON.stringify(storageError)}\n`);
             return res.status(500).json({ error: 'Failed to upload the file to storage' });
         }
 
@@ -90,7 +89,6 @@ const uploadPyq = async (req, res) => {
 
         if (dbError) {
             console.error('Database Insertion Error:', dbError);
-            require('fs').appendFileSync('last_error.log', `[DB] ${JSON.stringify(dbError)}\n`);
             return res.status(500).json({ error: 'Failed to save PYQ details to the database' });
         }
 
@@ -115,7 +113,6 @@ const uploadPyq = async (req, res) => {
 
     } catch (error) {
         console.error('Unexpected error during PYQ upload:', error);
-        require('fs').appendFileSync('last_error.log', `[Exception] ${error}\n`);
         res.status(500).json({ error: 'An internal server error occurred' });
     }
 };
