@@ -46,6 +46,10 @@ const DashboardPage = () => {
                 // If the user has a semester, set it as the default filter
                 setFilterSemester(parsedUser.semester);
             }
+            if (parsedUser.branch) {
+                // Similarly, set the default branch
+                setFilterBranch(parsedUser.branch);
+            }
             fetchPyqs(); // Fetch PYQs once user is set
         } else {
             navigate('/login');
@@ -126,6 +130,9 @@ const DashboardPage = () => {
     const [filterYear, setFilterYear] = useState('All');
     const [filterSemester, setFilterSemester] = useState('All');
 
+    // Drill-down UI State
+    const [selectedSubject, setSelectedSubject] = useState(null);
+
     // Extract unique branches and years for filter dropdowns
     const uniqueBranches = ['All', ...new Set(recentPapers.map(p => p.branch))];
     const uniqueYears = ['All', ...new Set(recentPapers.map(p => p.year))].sort((a, b) => b - a);
@@ -142,6 +149,19 @@ const DashboardPage = () => {
 
         return matchesSearch && matchesBranch && matchesYear && matchesSemester;
     });
+
+    // Group the filtered papers by their title (subject name)
+    const groupedSubjects = filteredPapers.reduce((acc, paper) => {
+        const subject = paper.title;
+        if (!acc[subject]) {
+            acc[subject] = [];
+        }
+        acc[subject].push(paper);
+        return acc;
+    }, {});
+
+    // Get papers for the currently selected subject, if any
+    const selectedSubjectPapers = selectedSubject ? groupedSubjects[selectedSubject] || [] : [];
 
     const handleViewPaper = (paper) => {
         handleLogView(paper.id);
@@ -302,19 +322,33 @@ const DashboardPage = () => {
 
 
 
-                        {/* Recent Papers Section */}
+                        {/* Recent Papers Section / Subject Groupings */}
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                             <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
-                                <h3 className="text-lg font-bold text-gray-900">
-                                    {searchTerm || filterBranch !== 'All' || filterYear !== 'All' || filterSemester !== 'All'
-                                        ? `Search Results (${filteredPapers.length})`
-                                        : `Recommended for ${user?.branch || 'You'} (Sem ${user?.semester || 'All'})`}
-                                </h3>
+                                {selectedSubject ? (
+                                    <div className="flex items-center space-x-3">
+                                        <button
+                                            onClick={() => setSelectedSubject(null)}
+                                            className="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-md transition-colors"
+                                            title="Back to Subjects"
+                                        >
+                                            <X size={18} />
+                                        </button>
+                                        <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{selectedSubject}</h3>
+                                    </div>
+                                ) : (
+                                    <h3 className="text-lg font-bold text-gray-900">
+                                        {searchTerm || filterBranch !== 'All' || filterYear !== 'All' || filterSemester !== 'All'
+                                            ? `Search Results (${Object.keys(groupedSubjects).length} Subjects)`
+                                            : `Subjects for ${user?.branch || 'You'} (Sem ${user?.semester || 'All'})`}
+                                    </h3>
+                                )}
                             </div>
+
                             <div className="divide-y divide-gray-100">
                                 {loadingPapers ? (
-                                    <div className="p-8 text-center text-gray-500">Loading recent papers...</div>
-                                ) : filteredPapers.length === 0 ? (
+                                    <div className="p-8 text-center text-gray-500">Loading subjects...</div>
+                                ) : Object.keys(groupedSubjects).length === 0 ? (
                                     <div className="p-12 text-center text-gray-500">
                                         <Search size={32} className="mx-auto mb-3 text-gray-300" />
                                         <p className="font-medium text-gray-600">No papers found matching your criteria.</p>
@@ -325,20 +359,21 @@ const DashboardPage = () => {
                                             Clear Filters
                                         </button>
                                     </div>
-                                ) : (
-                                    filteredPapers.map((paper) => (
+                                ) : selectedSubject ? (
+                                    /* --- VIEW 2: PAPERS FOR SELECTED SUBJECT --- */
+                                    selectedSubjectPapers.map((paper) => (
                                         <div key={paper.id} className="p-6 hover:bg-gray-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                             <div className="flex items-start space-x-4">
                                                 <div className="p-2 bg-gray-100 rounded-md text-gray-500 mt-1 sm:mt-0">
                                                     <FileText size={20} />
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-base font-semibold text-gray-900 leading-tight">{paper.title}</h4>
+                                                    <h4 className="text-base font-semibold text-gray-900 leading-tight">
+                                                        {paper.year} - {paper.resource_type}
+                                                    </h4>
                                                     <div className="mt-1 flex items-center space-x-3 text-xs font-medium text-gray-500">
                                                         <span className="bg-gray-100 px-2 py-0.5 rounded text-gray-600 font-bold">{paper.branch}</span>
                                                         {paper.semester && <span className="bg-orange-100 px-2 py-0.5 rounded text-portalOrange font-bold">Sem {paper.semester}</span>}
-                                                        <span className="bg-gray-100 px-2 py-0.5 rounded text-gray-600">{paper.resource_type}</span>
-                                                        <span>Year: {paper.year}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -370,6 +405,50 @@ const DashboardPage = () => {
                                             </div>
                                         </div>
                                     ))
+                                ) : (
+                                    /* --- VIEW 1: GROUPED SUBJECT CARDS --- */
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                                        {Object.entries(groupedSubjects).map(([subject, papers]) => {
+                                            // Get unique resource types for badges inside the subject
+                                            const types = [...new Set(papers.map(p => p.resource_type))];
+                                            const latestYear = Math.max(...papers.map(p => Number(p.year)));
+
+                                            return (
+                                                <div
+                                                    key={subject}
+                                                    onClick={() => setSelectedSubject(subject)}
+                                                    className="bg-white border text-left border-gray-200 rounded-xl p-5 hover:border-portalBlue hover:shadow-md transition-all cursor-pointer flex flex-col h-full group"
+                                                >
+                                                    <div className="flex items-start justify-between mb-3">
+                                                        <div className="p-2.5 bg-blue-50 rounded-lg text-portalBlue flex-shrink-0 group-hover:bg-portalBlue group-hover:text-white transition-colors">
+                                                            <BookOpen size={22} />
+                                                        </div>
+                                                        <span className="bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full border border-gray-200">
+                                                            {papers.length} Papers
+                                                        </span>
+                                                    </div>
+
+                                                    <h4 className="text-lg font-bold text-gray-900 mb-2 leading-tight flex-grow group-hover:text-portalBlue transition-colors">{subject}</h4>
+
+                                                    <div className="mt-auto space-y-3 pt-4 border-t border-gray-100">
+                                                        <div className="flex flex-wrap gap-1.5">
+                                                            {types.map(t => (
+                                                                <span key={t} className="text-[10px] font-bold uppercase tracking-wider text-gray-500 bg-gray-50 px-2 py-0.5 rounded border border-gray-100">
+                                                                    {t}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                        <div className="flex items-center justify-between text-xs text-gray-500 font-medium">
+                                                            <span>Latest: {latestYear}</span>
+                                                            <span className="flex items-center text-portalOrange group-hover:text-orange-600 group-hover:translate-x-1 transition-all">
+                                                                View Files <ChevronRight size={14} className="ml-0.5" />
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 )}
                             </div>
                         </div>
