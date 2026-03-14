@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import {
     BookOpen, FileText, Bookmark, Clock, Upload, LogOut, UserCircle,
     ChevronRight, ChevronDown, Download, X, FolderPlus, Folder,
-    Search, Trash2, ShieldAlert, Plus, FolderOpen
+    Search, Trash2, ShieldAlert, Plus, FolderOpen, Menu
 } from 'lucide-react';
 
 const API = import.meta.env.VITE_API_URL;
@@ -13,6 +13,9 @@ const UF = `${API}/upload-folders`; // My Uploads dedicated folder API
 const MyUploadsPage = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
+
+    // --- Mobile Menu State ---
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     // ── Papers ──────────────────────────────────────────────────────────
     const [myPapers, setMyPapers] = useState([]);
@@ -285,38 +288,48 @@ const MyUploadsPage = () => {
 
     return (
         <div className="min-h-screen bg-portalBgLight flex font-sans">
-            {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col shadow-sm z-10 fixed h-full">
+            {/* Mobile Sidebar Overlay */}
+            {isMobileMenuOpen && (
                 <div
-                    className="p-6 border-b border-gray-100 flex items-center space-x-3 cursor-pointer"
-                    onClick={() => navigate('/dashboard')}
-                >
-                    <div className="w-10 h-10 bg-portalBlue rounded-lg flex items-center justify-center text-white shadow-md">
-                        <BookOpen size={20} />
+                    className="fixed inset-0 bg-gray-900/50 z-40 md:hidden backdrop-blur-sm transition-opacity"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                />
+            )}
+
+            {/* Sidebar */}
+            <aside className={`w-64 bg-white border-r border-gray-200 flex flex-col shadow-sm z-50 fixed md:fixed inset-y-0 left-0 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 h-full`}>
+                <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                    <div className="flex items-center space-x-3 cursor-pointer" onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false); }}>
+                        <div className="w-10 h-10 bg-portalBlue rounded-lg flex items-center justify-center text-white shadow-md">
+                            <BookOpen size={20} />
+                        </div>
+                        <h2 className="text-xl font-bold text-portalBlue tracking-tight uppercase">GITA PYQ</h2>
                     </div>
-                    <h2 className="text-xl font-bold text-portalBlue tracking-tight uppercase">GITA PYQ</h2>
+                    <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden text-gray-500 hover:text-gray-700">
+                        <X size={24} />
+                    </button>
                 </div>
-                <nav className="flex-1 p-4 flex flex-col gap-2">
-                    <button onClick={() => navigate('/dashboard')} className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-portalBlue rounded-lg font-medium transition-colors w-full text-left">
+                <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto">
+                    <button onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false); }} className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-portalBlue rounded-lg font-medium transition-colors w-full text-left">
                         <FileText size={20} /><span>All Papers</span>
                     </button>
-                    <button onClick={() => navigate('/search')} className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-portalBlue rounded-lg font-medium transition-colors w-full text-left">
+                    <button onClick={() => { navigate('/search'); setIsMobileMenuOpen(false); }} className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-portalBlue rounded-lg font-medium transition-colors w-full text-left">
                         <Search size={20} /><span>Search Papers</span>
                     </button>
-                    <button onClick={() => navigate('/saved-papers')} className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-portalBlue rounded-lg font-medium transition-colors w-full text-left">
+                    <button onClick={() => { navigate('/saved-papers'); setIsMobileMenuOpen(false); }} className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-portalBlue rounded-lg font-medium transition-colors w-full text-left">
                         <Bookmark size={20} /><span>Saved Papers</span>
                     </button>
-                    <button onClick={() => navigate('/recently-viewed')} className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-portalBlue rounded-lg font-medium transition-colors w-full text-left">
+                    <button onClick={() => { navigate('/recently-viewed'); setIsMobileMenuOpen(false); }} className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-portalBlue rounded-lg font-medium transition-colors w-full text-left">
                         <Clock size={20} /><span>Recently Viewed</span>
                     </button>
-                    <button onClick={() => navigate('/my-uploads')} className="flex items-center space-x-3 px-4 py-3 bg-blue-50 text-portalBlue rounded-lg font-medium transition-colors w-full text-left">
+                    <button onClick={() => setIsMobileMenuOpen(false)} className="flex items-center space-x-3 px-4 py-3 bg-blue-50 text-portalBlue rounded-lg font-medium transition-colors w-full text-left">
                         <FileText size={20} /><span>My Uploads</span>
                     </button>
-                    <button onClick={() => navigate('/upload')} className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-portalBlue rounded-lg font-medium transition-colors w-full text-left">
+                    <button onClick={() => { navigate('/upload'); setIsMobileMenuOpen(false); }} className="flex items-center space-x-3 px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-portalBlue rounded-lg font-medium transition-colors w-full text-left">
                         <Upload size={20} /><span>Upload PYQ</span>
                     </button>
                 </nav>
-                <div className="p-4 border-t border-gray-100">
+                <div className="p-4 border-t border-gray-100 hidden md:block">
                     <button onClick={handleLogout} className="flex items-center space-x-3 px-4 py-3 w-full text-red-600 hover:bg-red-50 rounded-lg font-medium transition-colors">
                         <LogOut size={20} /><span>Log Out</span>
                     </button>
@@ -324,14 +337,16 @@ const MyUploadsPage = () => {
             </aside>
 
             {/* Main */}
-            <main className="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 md:ml-64">
+            <main className="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 md:ml-64 w-full">
                 {/* Header */}
-                <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 py-4 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-                    <div className="flex items-center md:hidden space-x-3" onClick={() => navigate('/dashboard')}>
-                        <div className="w-8 h-8 bg-portalBlue rounded-lg flex items-center justify-center text-white shadow-sm">
-                            <BookOpen size={16} />
+                <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 py-4 px-4 sm:px-8 flex items-center justify-between sticky top-0 z-10 shadow-sm w-full">
+                    <div className="flex items-center md:hidden space-x-3 w-full">
+                        <button onClick={() => setIsMobileMenuOpen(true)} className="text-gray-600 hover:text-portalBlue p-1 mr-2">
+                            <Menu size={24} />
+                        </button>
+                        <div className="flex-1">
+                            <h2 className="text-lg font-bold text-portalBlue tracking-tight truncate">Uploads</h2>
                         </div>
-                        <h2 className="text-lg font-bold text-portalBlue tracking-tight">Uploads</h2>
                     </div>
                     <div className="hidden md:flex items-center space-x-3 text-sm font-medium text-gray-500">
                         <button onClick={() => navigate('/dashboard')} className="hover:text-portalBlue transition-colors">Dashboard</button>
