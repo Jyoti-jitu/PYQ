@@ -101,7 +101,7 @@ const SearchPage = () => {
 
     const handleSaveToFolder = async (folderId) => {
         try {
-            await axios.post(`${import.meta.env.VITE_API_URL}/folders/save`, {
+            await axios.post(`${import.meta.env.VITE_API_URL}/folders/save-paper`, {
                 folderId,
                 pyqId: selectedPaperToSave.id
             });
