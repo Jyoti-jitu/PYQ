@@ -136,9 +136,9 @@ const DashboardPage = () => {
         const matchesSearch = paper.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             paper.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        const matchesBranch = filterBranch === 'All' || paper.branch === filterBranch;
-        const matchesYear = filterYear === 'All' || paper.year === filterYear;
-        const matchesSemester = filterSemester === 'All' || paper.semester === filterSemester;
+        const matchesBranch = filterBranch === 'All' || String(paper.branch) === String(filterBranch);
+        const matchesYear = filterYear === 'All' || String(paper.year) === String(filterYear);
+        const matchesSemester = filterSemester === 'All' || String(paper.semester) === String(filterSemester);
 
         return matchesSearch && matchesBranch && matchesYear && matchesSemester;
     });

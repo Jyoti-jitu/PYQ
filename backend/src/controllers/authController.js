@@ -12,11 +12,13 @@ const register = async (req, res) => {
 
     try {
         // Check if user already exists
-        const { data: existingUser } = await supabase
+        const { data: existingUsers } = await supabase
             .from('students')
             .select('*')
             .or(`email.eq.${email},roll_number.eq.${rollNumber}`)
-            .single();
+            .limit(1);
+
+        const existingUser = existingUsers && existingUsers.length > 0 ? existingUsers[0] : null;
 
         if (existingUser) {
             return res.status(400).json({ error: 'User with this email or roll number already exists' });
@@ -66,11 +68,13 @@ const login = async (req, res) => {
 
     try {
         // Find user by email
-        const { data: user, error } = await supabase
+        const { data: users, error } = await supabase
             .from('students')
             .select('*')
             .eq('email', email)
-            .single();
+            .limit(1);
+
+        const user = users && users.length > 0 ? users[0] : null;
 
         if (error) {
             console.error('Supabase error during login:', error);
@@ -113,11 +117,13 @@ const forgotPassword = async (req, res) => {
 
     try {
         // Find user by email
-        const { data: user, error } = await supabase
+        const { data: users, error } = await supabase
             .from('students')
             .select('id')
             .eq('email', email)
-            .single();
+            .limit(1);
+
+        const user = users && users.length > 0 ? users[0] : null;
 
         if (error || !user) {
             // Do not reveal if the user exists or not, just return success
@@ -168,11 +174,13 @@ const resetPassword = async (req, res) => {
 
     try {
         // Find user by token and ensure not expired
-        const { data: user, error } = await supabase
+        const { data: users, error } = await supabase
             .from('students')
             .select('id, reset_token_expiry')
             .eq('reset_token', token)
-            .single();
+            .limit(1);
+
+        const user = users && users.length > 0 ? users[0] : null;
 
         if (error || !user) {
             return res.status(400).json({ error: 'Invalid or expired reset token' });
