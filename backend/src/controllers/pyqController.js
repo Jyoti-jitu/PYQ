@@ -3,13 +3,13 @@ const supabase = require('../config/supabase');
 // Upload a PYQ file and save its metadata
 const uploadPyq = async (req, res) => {
     try {
-        const { title, branch, year, resourceType, facultyName, tags, userId, folderId } = req.body;
+        const { title, branch, semester, year, resourceType, facultyName, tags, userId, folderId } = req.body;
         const file = req.file;
 
         if (!file) {
             return res.status(400).json({ error: 'Please upload a PDF or image file' });
         }
-        if (!title || !branch || !year || !resourceType) {
+        if (!title || !branch || !semester || !year || !resourceType) {
             return res.status(400).json({ error: 'Please provide all required fields' });
         }
 
@@ -30,7 +30,7 @@ const uploadPyq = async (req, res) => {
         const facultyWords = facultyName ? facultyName.split(/\s+/).filter(w => w.trim() !== '') : [];
 
         const detailsAsTags = [
-            title, branch, year, resourceType, facultyName,
+            title, branch, semester, year, resourceType, facultyName,
             ...titleWords, ...facultyWords
         ]
             .filter(tag => tag && tag.toString().trim() !== '')
@@ -76,6 +76,7 @@ const uploadPyq = async (req, res) => {
                 {
                     title: title,
                     branch: branch,
+                    semester: semester,
                     year: year,
                     resource_type: resourceType,
                     faculty_name: facultyName || null,

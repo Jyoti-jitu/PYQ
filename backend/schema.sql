@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS pyqs (
   title TEXT NOT NULL,
   branch TEXT NOT NULL,
   year TEXT NOT NULL,
+  semester TEXT,
   resource_type TEXT NOT NULL,
   faculty_name TEXT,
   tags TEXT[] NOT NULL DEFAULT '{}',

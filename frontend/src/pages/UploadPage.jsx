@@ -26,6 +26,7 @@ const UploadPage = () => {
 
     const [title, setTitle] = useState('');
     const [branch, setBranch] = useState('');
+    const [semester, setSemester] = useState('');
     const [otherBranch, setOtherBranch] = useState('');
     const [year, setYear] = useState(new Date().getFullYear().toString());
     const [resourceType, setResourceType] = useState('');
@@ -70,7 +71,7 @@ const UploadPage = () => {
         setMessage('');
         setIsError(false);
 
-        if (!title || !branch || (branch === 'Other' && !otherBranch) || !year || !resourceType || !file) {
+        if (!title || !branch || (branch === 'Other' && !otherBranch) || !semester || !year || !resourceType || !file) {
             setIsError(true);
             setMessage('Please fill in all required fields (Faculty Name is optional)');
             return;
@@ -81,6 +82,7 @@ const UploadPage = () => {
         const formData = new FormData();
         formData.append('title', title);
         formData.append('branch', branch === 'Other' ? otherBranch : branch);
+        formData.append('semester', semester);
         formData.append('year', year);
         formData.append('resourceType', resourceType);
         if (facultyName) formData.append('facultyName', facultyName);
@@ -295,6 +297,26 @@ const UploadPage = () => {
                                             </select>
                                         </div>
 
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-1.5 focus-within:text-portalBlue transition-colors">Semester *</label>
+                                            <select
+                                                className="w-full px-4 py-3 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-xl text-gray-900 focus:outline-none focus:ring-2 focus:ring-portalBlue/50 focus:border-portalBlue focus:bg-white transition-all shadow-sm appearance-none"
+                                                value={semester}
+                                                onChange={(e) => setSemester(e.target.value)}
+                                                required
+                                            >
+                                                <option value="" disabled>Select Semester</option>
+                                                <option value="1">1st Semester</option>
+                                                <option value="2">2nd Semester</option>
+                                                <option value="3">3rd Semester</option>
+                                                <option value="4">4th Semester</option>
+                                                <option value="5">5th Semester</option>
+                                                <option value="6">6th Semester</option>
+                                                <option value="7">7th Semester</option>
+                                                <option value="8">8th Semester</option>
+                                            </select>
+                                        </div>
+
                                         {branch === 'Other' && (
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5 focus-within:text-portalBlue transition-colors">Enter Branch Name *</label>
@@ -356,12 +378,12 @@ const UploadPage = () => {
                                         <label className="block text-sm font-semibold text-gray-700 mb-1.5 focus-within:text-portalBlue transition-colors">Tags</label>
                                         <div className="w-full p-2.5 bg-white/50 backdrop-blur-sm border border-gray-200 rounded-xl focus-within:ring-2 focus-within:ring-portalBlue/50 focus-within:border-portalBlue focus-within:bg-white transition-all shadow-sm min-h-[56px] flex flex-wrap gap-2 items-center">
                                             {[...new Set([
-                                                ...[title, branch === 'Other' ? otherBranch : branch, year, resourceType, facultyName]
+                                                ...[title, branch === 'Other' ? otherBranch : branch, semester, year, resourceType, facultyName]
                                                     .filter(Boolean)
                                                     .map(t => t.toString().trim().toUpperCase()),
                                                 ...tags
                                             ])].map((tag, index) => {
-                                                const isAutoTag = [title, branch === 'Other' ? otherBranch : branch, year, resourceType, facultyName]
+                                                const isAutoTag = [title, branch === 'Other' ? otherBranch : branch, semester, year, resourceType, facultyName]
                                                     .filter(Boolean)
                                                     .map(t => t.toString().trim().toUpperCase())
                                                     .includes(tag);
@@ -447,7 +469,7 @@ const UploadPage = () => {
                                         <button
                                             form="upload-form"
                                             type="submit"
-                                            disabled={loading || !file || !title || !branch || (branch === 'Other' && !otherBranch) || !year || !resourceType}
+                                            disabled={loading || !file || !title || !branch || (branch === 'Other' && !otherBranch) || !semester || !year || !resourceType}
                                             className="flex items-center px-8 py-3 text-sm font-bold text-white bg-portalBlue rounded-xl hover:bg-blue-800 transition-all transform hover:scale-[1.02] disabled:hover:scale-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-portalBlue focus:ring-offset-2"
                                         >
                                             {loading ? 'Uploading...' : (

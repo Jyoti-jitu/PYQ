@@ -42,6 +42,10 @@ const DashboardPage = () => {
         if (loggedInUser) {
             const parsedUser = JSON.parse(loggedInUser);
             setUser(parsedUser);
+            if (parsedUser.semester) {
+                // If the user has a semester, set it as the default filter
+                setFilterSemester(parsedUser.semester);
+            }
             fetchPyqs(); // Fetch PYQs once user is set
         } else {
             navigate('/login');
@@ -120,10 +124,12 @@ const DashboardPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterBranch, setFilterBranch] = useState('All');
     const [filterYear, setFilterYear] = useState('All');
+    const [filterSemester, setFilterSemester] = useState('All');
 
     // Extract unique branches and years for filter dropdowns
     const uniqueBranches = ['All', ...new Set(recentPapers.map(p => p.branch))];
     const uniqueYears = ['All', ...new Set(recentPapers.map(p => p.year))].sort((a, b) => b - a);
+    const uniqueSemesters = ['All', ...new Set(recentPapers.map(p => p.semester).filter(Boolean))].sort();
 
     // Apply filters
     const filteredPapers = recentPapers.filter(paper => {
@@ -132,8 +138,9 @@ const DashboardPage = () => {
 
         const matchesBranch = filterBranch === 'All' || paper.branch === filterBranch;
         const matchesYear = filterYear === 'All' || paper.year === filterYear;
+        const matchesSemester = filterSemester === 'All' || paper.semester === filterSemester;
 
-        return matchesSearch && matchesBranch && matchesYear;
+        return matchesSearch && matchesBranch && matchesYear && matchesSemester;
     });
 
     const handleViewPaper = (paper) => {
@@ -225,7 +232,7 @@ const DashboardPage = () => {
                         </button>
                         <div className="hidden sm:block text-right">
                             <p className="text-sm font-semibold text-gray-900">{user?.full_name || 'Student'}</p>
-                            <p className="text-xs text-gray-500">{user?.branch || 'General'} | {user?.roll_number || 'N/A'}</p>
+                            <p className="text-xs text-gray-500">{user?.branch || 'General'} | Sem: {user?.semester || 'N/A'}</p>
                         </div>
                     </div>
                 </header>
@@ -299,9 +306,9 @@ const DashboardPage = () => {
                         <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                             <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/30">
                                 <h3 className="text-lg font-bold text-gray-900">
-                                    {searchTerm || filterBranch !== 'All' || filterYear !== 'All'
+                                    {searchTerm || filterBranch !== 'All' || filterYear !== 'All' || filterSemester !== 'All'
                                         ? `Search Results (${filteredPapers.length})`
-                                        : `Recommended for ${user?.branch || 'You'}`}
+                                        : `Recommended for ${user?.branch || 'You'} (Sem ${user?.semester || 'All'})`}
                                 </h3>
                             </div>
                             <div className="divide-y divide-gray-100">
@@ -312,7 +319,7 @@ const DashboardPage = () => {
                                         <Search size={32} className="mx-auto mb-3 text-gray-300" />
                                         <p className="font-medium text-gray-600">No papers found matching your criteria.</p>
                                         <button
-                                            onClick={() => { setSearchTerm(''); setFilterBranch('All'); setFilterYear('All'); }}
+                                            onClick={() => { setSearchTerm(''); setFilterBranch('All'); setFilterYear('All'); setFilterSemester('All'); }}
                                             className="mt-4 px-4 py-2 bg-blue-50 text-portalBlue rounded-lg text-sm font-semibold hover:bg-blue-100 transition-colors"
                                         >
                                             Clear Filters
@@ -329,6 +336,7 @@ const DashboardPage = () => {
                                                     <h4 className="text-base font-semibold text-gray-900 leading-tight">{paper.title}</h4>
                                                     <div className="mt-1 flex items-center space-x-3 text-xs font-medium text-gray-500">
                                                         <span className="bg-gray-100 px-2 py-0.5 rounded text-gray-600 font-bold">{paper.branch}</span>
+                                                        {paper.semester && <span className="bg-orange-100 px-2 py-0.5 rounded text-portalOrange font-bold">Sem {paper.semester}</span>}
                                                         <span className="bg-gray-100 px-2 py-0.5 rounded text-gray-600">{paper.resource_type}</span>
                                                         <span>Year: {paper.year}</span>
                                                     </div>
