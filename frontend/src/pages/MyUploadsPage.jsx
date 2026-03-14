@@ -7,7 +7,7 @@ import {
     Search, Trash2, ShieldAlert, Plus, FolderOpen
 } from 'lucide-react';
 
-const API = 'http://localhost:5000/api';
+const API = import.meta.env.VITE_API_URL;
 const UF = `${API}/upload-folders`; // My Uploads dedicated folder API
 
 const MyUploadsPage = () => {

@@ -27,7 +27,7 @@ const DashboardPage = () => {
     // Fetch PYQs function
     const fetchPyqs = async () => {
         try {
-            const response = await axios.get('http://localhost:5000/api/pyq');
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/pyq`);
             setRecentPapers(response.data.pyqs || []);
         } catch (error) {
             console.error("Error fetching PYQs:", error);
@@ -55,7 +55,7 @@ const DashboardPage = () => {
     const handleLogView = async (pyqId) => {
         if (!user || user.roll_number === 'N/A') return; // Don't log for dummy user
         try {
-            await axios.post('http://localhost:5000/api/pyq/view', {
+            await axios.post(`${import.meta.env.VITE_API_URL}/pyq/view`, {
                 userId: user.id,
                 pyqId: pyqId
             });
@@ -88,7 +88,7 @@ const DashboardPage = () => {
 
         setLoadingFolders(true);
         try {
-            const res = await axios.get(`http://localhost:5000/api/folders/${user.id}`);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/folders/${user.id}`);
             setFolders(res.data.folders || []);
         } catch (error) {
             console.error('Error fetching folders:', error);
@@ -99,7 +99,7 @@ const DashboardPage = () => {
 
     const handleSaveToFolder = async (folderId) => {
         try {
-            await axios.post('http://localhost:5000/api/folders/save-paper', {
+            await axios.post(`${import.meta.env.VITE_API_URL}/folders/save-paper`, {
                 folderId,
                 pyqId: selectedPaperToSave.id
             });

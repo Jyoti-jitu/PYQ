@@ -34,7 +34,7 @@ const SavedPapersPage = () => {
     const fetchFolders = async (userId) => {
         setLoading(true);
         try {
-            const res = await axios.get(`http://localhost:5000/api/folders/${userId}`);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/folders/${userId}`);
             setFolders(res.data.folders || []);
         } catch (error) {
             console.error('Error fetching folders:', error);
@@ -46,7 +46,7 @@ const SavedPapersPage = () => {
     const fetchPapersInFolder = async (folderId) => {
         setLoading(true);
         try {
-            const res = await axios.get(`http://localhost:5000/api/folders/${folderId}/papers`);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/folders/${folderId}/papers`);
             setPapers(res.data.papers || []);
         } catch (error) {
             console.error('Error fetching papers in folder:', error);
@@ -60,7 +60,7 @@ const SavedPapersPage = () => {
         if (!newFolderName.trim() || !user) return;
 
         try {
-            const res = await axios.post('http://localhost:5000/api/folders/create', {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/folders/create`, {
                 studentId: user.id,
                 folderName: newFolderName.trim()
             });

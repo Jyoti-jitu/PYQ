@@ -35,7 +35,7 @@ const RecentlyViewedPage = () => {
 
     const fetchRecentlyViewed = async (userId) => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/pyq/recent/${userId}`);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/pyq/recent/${userId}`);
             setRecentPapers(res.data.pyqs || []);
         } catch (error) {
             console.error('Error fetching recently viewed PYQs:', error);
@@ -47,7 +47,7 @@ const RecentlyViewedPage = () => {
     const handleLogView = async (pyqId) => {
         if (!user) return;
         try {
-            await axios.post('http://localhost:5000/api/pyq/view', {
+            await axios.post(`${import.meta.env.VITE_API_URL}/pyq/view`, {
                 userId: user.id,
                 pyqId: pyqId
             });
@@ -78,7 +78,7 @@ const RecentlyViewedPage = () => {
         setLoadingFolders(true);
 
         try {
-            const res = await axios.get(`http://localhost:5000/api/folders/${user.id}`);
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/folders/${user.id}`);
             setFolders(res.data.folders || []);
         } catch (error) {
             console.error('Error fetching folders:', error);
@@ -96,7 +96,7 @@ const RecentlyViewedPage = () => {
 
     const handleSaveToFolder = async (folderId) => {
         try {
-            await axios.post('http://localhost:5000/api/folders/save', {
+            await axios.post(`${import.meta.env.VITE_API_URL}/folders/save`, {
                 folderId,
                 pyqId: selectedPaperToSave.id
             });
